@@ -320,4 +320,4 @@ def get_c_k_n(k, n):
     return int(math.factorial(n) / (math.factorial(k) * math.factorial(n - k)))
 
 # write_data_to_graph("./output/benchmark.xlsx", "./output/20240505_22", [1, 2, 3])
-write_data_to_each_graph("./output/benchmark.xlsx", "./output/20240505_22", [1, 2, 3])
+# write_data_to_each_graph("./output/benchmark.xlsx", "./output/20240505_22", [1, 2, 3])
