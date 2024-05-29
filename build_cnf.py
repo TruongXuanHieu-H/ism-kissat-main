@@ -18,10 +18,11 @@ def build_cnf_for_each_transaction(items, transaction_idx):
     indice_q = num_items + transaction_idx
     neg_items = [item for item in items if item % 2 == 0]
     # constaint (5)
-    clauses.extend([[-indice_q, -int(item/2+1)] for item in neg_items])
+    c_5 = [[-indice_q, -int(item/2+1)] for item in neg_items]
+    clauses.extend(c_5)
     # constaint (6)
-    c_6 = [indice_q]
-    c_6.extend([int(item/2+1) for item in neg_items])
+    c_6 = [int(item/2+1) for item in neg_items]
+    c_6.extend([indice_q])
     clauses.append(c_6)
 
 def additional_constraints():
@@ -35,9 +36,6 @@ def at_least_k():
     # at least k: q1 + q2 + q3 + ... + qn >= k
     c_4 = st.combinations(num_transactions - min_support + 1, num_transactions, num_items)
     clauses.extend(c_4)
-    # at least 1 transaction
-    c_4_1 = [i + num_items for i in range(1,num_transactions+1)]
-    clauses.append(c_4_1)
 
 def at_least_k_se():
     global clauses
@@ -63,7 +61,6 @@ def process_file(input_file):
             transaction_idx = i + 1
             values = line.strip().split()
             values = [int(value) for value in values]
-            print("Process transaction:", transaction_idx)
             build_cnf_for_each_transaction(values, transaction_idx)
             
 

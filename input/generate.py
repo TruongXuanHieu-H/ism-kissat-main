@@ -7,3 +7,6 @@ def generate(n_items, n_transactions):
                 is_true = random.choice([0, 1])
                 f.write(str(j*2 + is_true) + " ")
             f.write("\n")
+
+if __name__ == "__main__":
+    generate(8, 20)
