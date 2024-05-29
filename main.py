@@ -8,7 +8,7 @@ def call_kissat(cnf_file, out_put_path, time_out):
     os.system("./kissat/build/kissat {} --time={} > {}".format(cnf_file, str(time_out), out_put_path))
 
 def get_name_of_encoding_mode(mode):
-    return {1: "binomial", 2: "new_sequence_counter", 3: "old_sequence_counter"}.get(mode, "Invalid")
+    return {1: "binomial", 2: "new_sequential_counter", 3: "old_sequential_counter"}.get(mode, "Invalid")
 
 def process(database, min_support, mode, time_out):
     encoding_mode_name = get_name_of_encoding_mode(mode)
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--database', '-db', type=str, required=True, dest='database', help='Path to the input database')
     parser.add_argument('--min-support', '-msup', required=True, dest='min_support', type=float, help='Minimum support of itemset. Minimum value in range (0, 1) is counted as percentage .i.e 0.7 <=> 70%%, while [1, ...] is counted as number of transactions')
-    parser.add_argument('--mode', type=int, default=1, required=True, dest='mode', choices=[1, 2, 3], help='Encoding mode:    1. Binomial    2. New Sequence Counter    3. Old Sequence Counter')
+    parser.add_argument('--mode', type=int, default=1, required=True, dest='mode', choices=[1, 2, 3], help='Encoding mode:    1. Binomial    2. New sequential Counter    3. Old sequential Counter')
     parser.add_argument('--time-out', type=int, default=900, required=False, dest='time_out', help='Timeout for SAT solver')
     args = parser.parse_args()
     (n_items, n_transactions, n_vars, n_clauses, elapsed_time) = process(args.database, args.min_support, args.mode, args.time_out)
