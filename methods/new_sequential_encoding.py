@@ -14,7 +14,7 @@ def constraint_1():
     for i in range(1, g_n+1):
         c.append([-get_x(i), get_r(i, 1)])
         if i <= g_k:
-            c.append([get_x(i), -get_r(i, i)])
+            c.append([get_x(i), get_r(i, i)])
     return c
 
 # -rij
