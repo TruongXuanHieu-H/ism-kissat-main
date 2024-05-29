@@ -37,7 +37,7 @@ def at_least_k():
 
 def at_least_k_se():
     global g_clauses
-    clause = nse.constraints(g_num_transactions, g_min_support, g_num_items)
+    clause = nse.at_least_k(g_num_transactions, g_min_support, g_num_items)
     g_clauses.extend(clause)
 
 def at_least_k_old_se():
