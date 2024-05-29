@@ -62,7 +62,7 @@ def benchmark(modes=[1, 2, 3],
                 elapsed_time = 0
             else:
                 n_solutions, n_vars, n_clauses, elapsed_time = m.process(
-                    input_raw_data=input_raw_data,
+                    database=input_raw_data,
                     min_support=min_support,
                     mode=1,
                     find_all=find_all)
@@ -75,7 +75,7 @@ def benchmark(modes=[1, 2, 3],
         if 3 in modes:
             # old sequential encoding
             n_solutions, n_vars, n_clauses, elapsed_time = m.process(
-                input_raw_data=input_raw_data,
+                database=input_raw_data,
                 min_support=min_support,
                 mode=3,
                 output_folder="./output/old_sequential_encoding/",
@@ -90,7 +90,7 @@ def benchmark(modes=[1, 2, 3],
         if 2 in modes:
             # sequential encoding
             n_solutions, n_vars, n_clauses, elapsed_time = m.process(
-                input_raw_data=input_raw_data,
+                database=input_raw_data,
                 min_support=min_support,
                 mode=2,
                 output_folder="./output/sequential_encoding/",

@@ -1,58 +1,43 @@
+from datetime import datetime
 import os
-import helper as h
-import build_cnf as bc
+import cnf_builder
 import argparse
 import time
 
-def call_kissat(cnf_file, out_put_path, time_out, times=0):
-    os.system("./kissat/build/kissat "+cnf_file+" --time="+str(time_out)+" > "+out_put_path + str(times) +".txt")
+def call_kissat(cnf_file, out_put_path, time_out):
+    os.system("./kissat/build/kissat {} --time={} > {}".format(cnf_file, str(time_out), out_put_path))
 
-def process(input_raw_data: str = "./input/converted_raw_data.txt",
-    path_cnf: str = "./input/input.cnf",
-    min_support: int = 0.2,
-    output_folder: str = "./output/standard/",
-    prefix_raw_output: str = "raw_",
-    merged_name: str = "merged_equation.txt",
-    mode: int = 2, # 1: standard, 2: sequential encoding, 3: old sequential encoding
-    time_out: int = 900,
-    find_all: bool = False):
+def get_name_of_encoding_mode(mode):
+    return {1: "binomial", 2: "new_sequence_counter", 3: "old_sequence_counter"}.get(mode, "Invalid")
 
-    #clear old result
-    os.system("rm -f "+output_folder+"*.txt")
-
-    # first run to get the result
-    n_solutions = 1
-    # build cnf file to path_cnf
+def process(database, min_support, mode, time_out):
+    encoding_mode_name = get_name_of_encoding_mode(mode)
+    if (encoding_mode_name == "Invalid"):
+        print("Invalid encoding mode.")
+        return
+    
+    cnf_folder_path = "cnf/{}".format(encoding_mode_name)
+    output_folder_path = "output/{}".format(encoding_mode_name)
+    
+    file_prefix = str(datetime.now()).replace(" ", "_")
+    file_name = "{}__{}".format(file_prefix, database.split('/')[-1])
+    
+    cnf_file_path = "{}/{}".format(cnf_folder_path, file_name)
+    output_file_path = "{}/{}".format(output_folder_path, file_name)
+    
     start_time = time.time()
-    n_items, n_transactions, n_vars, n_clauses = bc.run(input_raw_data, path_cnf, min_support, mode)
-    # call kissat to solve path_cnf
-    call_kissat(path_cnf, output_folder + prefix_raw_output, time_out ,n_solutions)
-
-    # # loop until no more result
-    # # statistic and ignore solved solutions
-    # while find_all:
-    #     equations = h.extract_solutions_from_result(output_folder + prefix_raw_output + str(n_solutions) + ".txt")
-    #     if len(equations) == 0:
-    #         break
-    #     h.save_equation_to_file(output_folder + merged_name , equations, n_items, n_transactions, min_support)
-    #     h.ignore_solved_solutions(path_cnf, equations, n_items)
-    #     n_solutions += 1
-    #     call_kissat(path_cnf,output_folder + prefix_raw_output, time_out, n_solutions)
-    #     # if n_solutions > 10:
-    #     #     break
-
+    n_items, n_transactions, n_vars, n_clauses = cnf_builder.run(database, cnf_file_path, min_support, mode)
+    call_kissat(cnf_file_path, output_file_path, time_out)
     elapsed_time = time.time() - start_time
-    return n_solutions, n_vars, n_clauses, elapsed_time
+    return n_items, n_transactions, n_vars, n_clauses, elapsed_time
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input-raw-data', type=str, default='./input/converted_raw_data.txt', help='Path to the input raw data file', required=False, dest='input_raw_data')
-    parser.add_argument('--path-cnf', type=str, default='./input/input.cnf', help='Path to the output CNF file', required=False, dest='path_cnf')
-    parser.add_argument('--min-support', type=float, default=0.2, help='Minimum support', required=False, dest='min_support')
-    parser.add_argument('--output-folder', type=str, default='./output/standard/', help='Path to the output folder', required=False, dest='output_folder')
-    parser.add_argument('--prefix-raw-output', type=str, default='raw_', help='Prefix for the raw output files', required=False, dest='prefix_raw_output')
-    parser.add_argument('--merged-name', type=str, default='merged_equation.txt', help='Name of the merged equation file', required=False, dest='merged_name')
-    parser.add_argument('--mode', type=int, default=2, help='Use sequential encoding', required=False, dest='mode')
-    parser.add_argument('--time-out', type=int, default=900, help='Time out for kissat', required=False, dest='time_out')
+    parser.add_argument('--database', '-db', type=str, required=True, dest='database', help='Path to the input database')
+    parser.add_argument('--min-support', '-msup', required=True, dest='min_support', type=float, help='Minimum support of itemset. Minimum value < 1 will be counted as percentage, while >= 1 will be counted as number of transactions')
+    parser.add_argument('--mode', type=int, default=1, required=True, dest='mode', choices=[1, 2, 3], help='Encoding mode:    1. Binomial    2. New Sequence Counter    3. Old Sequence Counter')
+    parser.add_argument('--time-out', type=int, default=900, required=False, dest='time_out', help='Timeout for SAT solver')
     args = parser.parse_args()
-    process(args.input_raw_data, args.path_cnf, args.min_support, args.output_folder, args.prefix_raw_output, args.merged_name, args.mode, args.time_out)
+    (n_items, n_transactions, n_vars, n_clauses, elapsed_time) = process(args.database, args.min_support, args.mode, args.time_out)
+    print("Report:\n\tItems: {}\n\tTransactions: {}\n\tVariables: {}\n\tClauses: {}\n\tElapse time:{}"
+          .format(n_items, n_transactions, n_vars, n_clauses, elapsed_time))
