@@ -34,7 +34,7 @@ def process(database, min_support, mode, time_out):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--database', '-db', type=str, required=True, dest='database', help='Path to the input database')
-    parser.add_argument('--min-support', '-msup', required=True, dest='min_support', type=float, help='Minimum support of itemset. Minimum value < 1 will be counted as percentage, while >= 1 will be counted as number of transactions')
+    parser.add_argument('--min-support', '-msup', required=True, dest='min_support', type=float, help='Minimum support of itemset. Minimum value in range (0, 1) is counted as percentage .i.e 0.7 <=> 70%%, while [1, ...] is counted as number of transactions')
     parser.add_argument('--mode', type=int, default=1, required=True, dest='mode', choices=[1, 2, 3], help='Encoding mode:    1. Binomial    2. New Sequence Counter    3. Old Sequence Counter')
     parser.add_argument('--time-out', type=int, default=900, required=False, dest='time_out', help='Timeout for SAT solver')
     args = parser.parse_args()
